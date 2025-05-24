@@ -1,2 +1,2 @@
 # video-processor
-Un MVP de Python para extraer aspectos destacados de videos inteligentes, diseñado para la futura integración de la detección de personas y objetos basada en IA.
+A Python MVP for extracting intelligent video highlights, designed for future integration of AI-based person and object detection.
