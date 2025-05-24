@@ -1,0 +1,6 @@
+[server]
+maxUploadSize = 2048  # 2GB en MB
+maxMessageSize = 2048  # 2GB en MB
+
+[browser]
+gatherUsageStats = false

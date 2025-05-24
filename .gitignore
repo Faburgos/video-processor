@@ -1,0 +1,15 @@
+# Ignore bytecode files
+__pycache__/
+*.pyc
+
+# Ignore contenido de las carpetas
+/ temp_uploads/*
+/ temp_clips/*
+/ bin/*
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+exam.py
+.venv/
+ffmpeg.exe
