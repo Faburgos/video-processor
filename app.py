@@ -5,7 +5,7 @@ import traceback
 import base64
 import streamlit as st
 import pandas as pd
-from enhanced_video import process_video, zip_results
+from enhanced_video import process_school_video, zip_results
 
 # Constants
 UPLOAD_FOLDER = "temp_uploads"
@@ -111,7 +111,7 @@ def main():
     st.title("🎥 Video Processor MVP")
     st.markdown("Extrae clips inteligentes de tus videos largos")
 
-    # Sidebar de configuración
+    # Sidebar de configuración (actualizar la sección de análisis de contenido)
     with st.sidebar:
         st.header("⚙️ Configuración del procesamiento")
         
@@ -126,14 +126,31 @@ def main():
         quality_check = st.checkbox("Analizar calidad de imagen", True, key="quality_check")
         motion_check = st.checkbox("Detectar movimiento", True, key="motion_check")
         smart_filter = st.checkbox("Extracción inteligente", True, 
-                                 help="Solo extrae clips que cumplan TODOS los criterios", key="smart_filter")
+                                help="Solo extrae clips que cumplan TODOS los criterios", key="smart_filter")
+        
+        st.markdown("---")
+        st.subheader("🤖 Detecciones YOLO") 
+        yolo_analysis = st.checkbox("Activar análisis YOLO", True, 
+                                help="Detecta estudiantes y maestros", key="yolo_analysis")
+        
+        yolo_in_video = st.checkbox("Mostrar detecciones en el video", True, 
+                                help="Dibuja las detecciones directamente en los clips generados", 
+                                key="yolo_in_video",
+                                disabled=not yolo_analysis)
+        
+        if yolo_analysis:
+            confidence_threshold = st.slider("Umbral de confianza", 0.1, 0.9, 0.5, 0.1,
+                                        help="Confianza mínima para mostrar detecciones", 
+                                        key="confidence_slider")
+        else:
+            confidence_threshold = 0.5
         
         st.markdown("---")
         st.subheader("🎬 Compresión opcional")
         scale = st.slider("Escala de resolución", 0.1, 1.0, 1.0, 0.1,
-                         help="1.0 = resolución original", key="scale_slider")
+                        help="1.0 = resolución original", key="scale_slider")
         reduce_fps = st.checkbox("Reducir FPS a la mitad", False,
-                               help="Reduce el tamaño del archivo", key="reduce_fps_check")
+                            help="Reduce el tamaño del archivo", key="reduce_fps_check")
         
         st.markdown("---")
         if st.button("🔄 Nuevo Video", key="reset_button", use_container_width=True):
@@ -194,11 +211,11 @@ def main():
             
             with st.spinner("🎬 Procesando el video..."):
                 try:
-                    status_text.text("Inicializando procesamiento...")
                     progress_bar.progress(10)
                     
-                    result = process_video(
+                    result = process_school_video(
                         video_path = video_path,
+                        model_path = "models/best.pt", 
                         interval_seconds = interval_sec,
                         output_folder = output_dir,
                         clip_duration_sec = clip_duration,
@@ -264,18 +281,15 @@ def show_results(result):
             with preview_cols[i]:
                 st.write(f"**Clip {i+1}**")
                 
+                clip_name = os.path.basename(clips[i])
+                clip_meta = next((m for m in clips_meta if m["filename"] == clip_name), {})
+
                 # Usar el nuevo sistema de reproducción
                 success = display_video_with_fallback(clips[i], unique_key=f"preview_{i}")
                 
                 if success:
-                    clip_name = os.path.basename(clips[i])
-                    # Encontrar metadatos del clip
-                    clip_meta = next((meta for meta in clips_meta if meta["filename"] == clip_name), {})
-                    if clip_meta:
-                        st.caption(f"⏰ {format_time(clip_meta.get('start_time', 0))}")
-                        st.caption(f"🎯 Nitidez: {clip_meta.get('quality_score', 0):.1f}")
-                    
-                    # Agregar botón de descarga individual
+                    st.caption(f"⏰ {format_time(clip_meta.get('start_time', 0))}")
+                    st.caption(f"🎯 Nitidez: {clip_meta.get('quality_score', 0):.1f}")
                     create_download_link(clips[i], clip_name, f"preview_download_{i}")
                 else:
                     st.error(f"No se pudo reproducir el clip {i+1}")
@@ -284,7 +298,6 @@ def show_results(result):
     st.subheader("📋 Todos los Clips Generados")
     
     if clips_meta:
-        # Crear tabla de datos
         df_data = []
         for i, meta in enumerate(clips_meta, 1):
             df_data.append({
@@ -295,7 +308,6 @@ def show_results(result):
                 "Nitidez": f"{meta['quality_score']:.1f}",
                 "Movimiento": f"{meta['motion_score']:.3f}"
             })
-        
         df = pd.DataFrame(df_data)
         st.dataframe(df, use_container_width=True)
 
@@ -305,22 +317,20 @@ def show_results(result):
             clip_path = os.path.join(os.path.dirname(clips[0]), meta["filename"])
             
             st.markdown(f"### 🎬 Clip {i+1}: {meta['filename']}")
-            
+
             col_video, col_info = st.columns([2, 1])
             
             with col_video:
-                # Usar el sistema mejorado de reproducción
                 success = display_video_with_fallback(clip_path, unique_key=f"full_clip_{i}")
                 if not success:
                     st.warning("⚠️ No se pudo cargar este clip para reproducción")
-            
+
             with col_info:
                 st.write(f"⏰ **Inicio:** {format_time(meta['start_time'])}")
                 st.write(f"⏱️ **Duración:** {meta['duration']:.1f}s")
                 st.write(f"🎯 **Nitidez:** {meta['quality_score']:.2f}")
                 st.write(f"🏃 **Movimiento:** {meta['motion_score']:.4f}")
-                
-                # Botón de descarga individual
+
                 if os.path.exists(clip_path):
                     create_download_link(clip_path, meta["filename"], f"individual_download_{i}")
             
@@ -348,7 +358,6 @@ def show_results(result):
             st.error(f"Error creando ZIP: {str(e)}")
     
     with col_download2:
-        # Descargar solo metadatos JSON
         metadata_path = result.get("metadata_path")
         if metadata_path and os.path.exists(metadata_path):
             with open(metadata_path, "rb") as f:
@@ -377,7 +386,7 @@ def show_results(result):
             "Resultados": {
                 "Total de clips": len(clips),
                 "Mejor clip (calidad)": summary.get("best_quality_clip", "N/A"),
-                "Clip con más movimiento": summary.get("most_motion_clip", "N/A")
+                "Clip con más movimiento": summary.get("most_detections_clip", "N/A")
             }
         })
 
