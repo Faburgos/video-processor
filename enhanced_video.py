@@ -11,12 +11,14 @@ from ultralytics import YOLO
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.patches import Rectangle
+import tensorflow as tf
+from emotion_analyzer import ImprovedEmotionAnalyzer
 
 class SchoolYOLOVideoPipeline:
     def __init__(
         self,
         video_path: str,
-        model_path: str,  # Ruta a tu modelo YOLO entrenado
+        model_path: str,
         output_folder: str = 'temp_clips',
         interval_seconds: int = 300,
         clip_duration_sec: int = 10,
@@ -27,7 +29,8 @@ class SchoolYOLOVideoPipeline:
         reduce_fps: bool = False,
         confidence_threshold: float = 0.5,
         detection_analysis: bool = True,
-        yolo_in_video: bool = True
+        yolo_in_video: bool = True,
+        emotion_model_path: str = None
     ):
         self.video_path = video_path
         self.model_path = model_path
@@ -42,6 +45,7 @@ class SchoolYOLOVideoPipeline:
         self.confidence_threshold = confidence_threshold
         self.detection_analysis = detection_analysis
         self.yolo_in_video = yolo_in_video
+        self.emotion_model_path = emotion_model_path
         
         # Cargar modelo YOLO
         try:
@@ -52,7 +56,20 @@ class SchoolYOLOVideoPipeline:
             print(f"✗ Error cargando modelo YOLO: {str(e)}")
             self.model = None
         
-        # Definir la ruta al ejecutable de ffmpeg
+        # Cargar modelo de emociones
+        self.emotion_analyzer = None
+        if emotion_model_path and os.path.exists(emotion_model_path):
+            try:
+                self.emotion_analyzer = ImprovedEmotionAnalyzer(
+                    emotion_model_path,
+                    confidence_threshold = 0.6  # Ajustable
+                )
+                print("✓ Modelo de emociones cargado correctamente")
+            except Exception as e:
+                print(f"✗ Error cargando modelo de emociones: {str(e)}")
+                self.emotion_analyzer = None
+        
+        # Configurar FFmpeg
         self.ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin', 'ffmpeg.exe')
         self.has_ffmpeg = self._check_ffmpeg_available()
 
@@ -65,7 +82,6 @@ class SchoolYOLOVideoPipeline:
         if not cap.isOpened():
             raise IOError(f"No se puede abrir el video: {self.video_path}")
         
-        # Obtener propiedades del video
         original_fps = cap.get(cv2.CAP_PROP_FPS)
         if original_fps <= 0:
             original_fps = 30.0
@@ -82,7 +98,6 @@ class SchoolYOLOVideoPipeline:
         self.width = int(original_width * self.scale)
         self.height = int(original_height * self.scale)
         
-        # Asegurar dimensiones pares
         if self.width % 2 != 0:
             self.width += 1
         if self.height % 2 != 0:
@@ -115,7 +130,7 @@ class SchoolYOLOVideoPipeline:
         return motion_pixels / total_pixels if total_pixels > 0 else 0.0
 
     def _analyze_detections(self, frame) -> Dict:
-        """Analiza detecciones YOLO en el frame"""
+        """Versión mejorada del análisis de detecciones"""
         if self.model is None:
             return {
                 'total_detections': 0,
@@ -124,13 +139,13 @@ class SchoolYOLOVideoPipeline:
                 'teachers_sitting': 0,
                 'teachers_standing': 0,
                 'detection_score': 0.0,
-                'detections': []
+                'detections': [],
+                'emotion_stats': {},
+                'student_status_stats': {}
             }
         
-        # Realizar detección
         results = self.model(frame, conf=self.confidence_threshold, verbose=False)
         
-        # Procesar resultados
         detections = {
             'student_sitting': 0,
             'student_standing': 0,
@@ -140,30 +155,75 @@ class SchoolYOLOVideoPipeline:
         
         detection_details = []
         total_confidence = 0.0
+        emotion_counts = {}
+        status_counts = {}
         
         if results and len(results) > 0:
             boxes = results[0].boxes
             if boxes is not None:
+                # Preparar detecciones para análisis en lote
+                student_detections = []
+                
                 for box in boxes:
-                    # Obtener clase y confianza
                     cls_id = int(box.cls.cpu().numpy()[0])
                     confidence = float(box.conf.cpu().numpy()[0])
                     
                     if cls_id < len(self.model.names):
                         class_name = self.model.names[cls_id]
                         
-                        # Contar detecciones por tipo
                         if class_name in detections:
                             detections[class_name] += 1
                             total_confidence += confidence
                             
-                            # Guardar detalles de la detección
                             xyxy = box.xyxy.cpu().numpy()[0]
-                            detection_details.append({
+                            x1, y1, x2, y2 = map(int, xyxy)
+                            
+                            detection_info = {
                                 'class': class_name,
                                 'confidence': confidence,
-                                'bbox': xyxy.tolist()
-                            })
+                                'bbox': [x1, y1, x2, y2]
+                            }
+                            
+                            # Agregar estudiantes para análisis de emociones
+                            if 'student' in class_name:
+                                student_detections.append(detection_info)
+                            
+                            detection_details.append(detection_info)
+                
+                # ✅ CAMBIO PRINCIPAL: Usar el método correcto del ImprovedEmotionAnalyzer
+                if self.emotion_analyzer and student_detections:
+                    try:
+                        emotion_results = self.emotion_analyzer.batch_analyze_detections(
+                            frame, student_detections
+                        )
+                        
+                        # Procesar resultados del análisis mejorado
+                        for result in emotion_results:
+                            detection_info = result['detection']
+                            emotion_analysis = result['emotion_analysis']
+                            student_status = result.get('student_status', {})
+                            
+                            # Actualizar detection_details con información completa
+                            for det in detection_details:
+                                if (det['bbox'] == detection_info['bbox'] and 
+                                    det['class'] == detection_info['class']):
+                                    
+                                    det['emotion_analysis'] = emotion_analysis
+                                    det['student_status'] = student_status
+                                    
+                                    # ✅ Estadísticas mejoradas
+                                    if emotion_analysis.get('success'):
+                                        emotion = emotion_analysis['emotion']
+                                        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+                                    
+                                    if student_status.get('status'):
+                                        status = student_status['status']
+                                        status_counts[status] = status_counts.get(status, 0) + 1
+                                    
+                                    break
+                    
+                    except Exception as e:
+                        print(f"Error en análisis de emociones mejorado: {str(e)}")
         
         total_detections = sum(detections.values())
         avg_confidence = total_confidence / total_detections if total_detections > 0 else 0.0
@@ -175,7 +235,9 @@ class SchoolYOLOVideoPipeline:
             'teachers_sitting': detections.get('teacher_sitting', 0),
             'teachers_standing': detections.get('teacher_standing', 0),
             'detection_score': avg_confidence,
-            'detections': detection_details
+            'detections': detection_details,
+            'emotion_stats': emotion_counts,
+            'student_status_stats': status_counts
         }
 
     def _should_extract_clip(self, quality_score: float, motion_score: float, detection_data: Dict) -> bool:
@@ -189,10 +251,14 @@ class SchoolYOLOVideoPipeline:
             conditions.append(motion_score > 0.01)
         
         if self.detection_analysis and self.model is not None:
-            # Extraer clips que tengan al menos una detección relevante
             has_meaningful_detections = detection_data['total_detections'] > 0
             has_good_confidence = detection_data['detection_score'] > self.confidence_threshold
             conditions.append(has_meaningful_detections and has_good_confidence)
+            
+            if self.emotion_analyzer:
+                emotion_stats = detection_data.get('emotion_stats', {})
+                has_positive_emotions = emotion_stats.get('happy', 0) > 0 or emotion_stats.get('neutral', 0) > 0
+                conditions.append(has_positive_emotions)
         
         if not conditions:
             return True
@@ -207,7 +273,6 @@ class SchoolYOLOVideoPipeline:
                              capture_output=True, check=True)
                 return True
             else:
-                # Probar ffmpeg del sistema
                 subprocess.run(['ffmpeg', '-version'], 
                              capture_output=True, check=True)
                 self.ffmpeg_path = 'ffmpeg'
@@ -305,12 +370,16 @@ class SchoolYOLOVideoPipeline:
             return False
     
     def _extract_clip_opencv_with_yolo(self, start_time: float, end_time: float, output_path: str) -> bool:
-        """Extrae un clip usando OpenCV aplicando detecciones YOLO en tiempo real"""
+        """Extrae un clip usando OpenCV aplicando detecciones YOLO y emociones en tiempo real"""
         cap = cv2.VideoCapture(self.video_path)
         if not cap.isOpened():
             return False
         
         cap.set(cv2.CAP_PROP_POS_MSEC, start_time * 1000)
+        
+        # Crear video temporal sin audio
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmpfile:
+            temp_video_path = tmpfile.name
         
         fourcc_options = [
             cv2.VideoWriter_fourcc(*'avc1'),
@@ -319,10 +388,6 @@ class SchoolYOLOVideoPipeline:
             cv2.VideoWriter_fourcc(*'XVID')
         ]
 
-         # 1. Crear video temporal sin audio
-        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmpfile:
-            temp_video_path = tmpfile.name
-        
         writer = None
         for fourcc_option in fourcc_options:
             writer = cv2.VideoWriter(temp_video_path, fourcc_option, self.fps, (self.width, self.height))
@@ -360,22 +425,18 @@ class SchoolYOLOVideoPipeline:
             # Aplicar detecciones YOLO si el modelo está disponible
             if self.model is not None:
                 try:
-                    # Realizar detección en el frame actual
                     results = self.model(frame, conf=self.confidence_threshold, verbose=False)
                     
                     if results and len(results) > 0:
                         boxes = results[0].boxes
                         if boxes is not None:
                             for box in boxes:
-                                # Obtener información de la detección
                                 cls_id = int(box.cls.cpu().numpy()[0])
                                 confidence = float(box.conf.cpu().numpy()[0])
                                 xyxy = box.xyxy.cpu().numpy()[0]
                                 
                                 if cls_id < len(self.model.names):
                                     class_name = self.model.names[cls_id]
-                                    
-                                    # Obtener coordenadas
                                     x1, y1, x2, y2 = map(int, xyxy)
                                     
                                     # Elegir color según la clase
@@ -386,7 +447,40 @@ class SchoolYOLOVideoPipeline:
                                     
                                     # Preparar etiqueta
                                     label = f"{class_name}: {confidence:.2f}"
-                                    label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
+                                    
+                                    # Analizar emociones si hay un analizador
+                                    emotion_text = ""
+                                    if self.emotion_analyzer and class_name in ['student_sitting', 'student_standing']:
+                                        try:
+                                            # ❌ Método anterior incorrecto
+                                            # face_img = frame[y1:y2, x1:x2]
+                                            # emotion, emotion_conf = self.emotion_analyzer.analyze_face(face_img)
+                                            
+                                            # ✅ Usar el método correcto del ImprovedEmotionAnalyzer
+                                            emotion_result = self.emotion_analyzer.analyze_face_in_detection(
+                                                frame, (x1, y1, x2, y2)
+                                            )
+                                            
+                                            if emotion_result.get('success'):
+                                                emotion = emotion_result['emotion']
+                                                emotion_conf = emotion_result['confidence']
+                                                
+                                                # Determinar estado usando el método mejorado
+                                                posture = 'sitting' if 'sitting' in class_name else 'standing'
+                                                status_result = self.emotion_analyzer.determine_student_status_enhanced(
+                                                    posture, emotion_result
+                                                )
+                                                
+                                                emotion_text = f" ({emotion})"
+                                                if status_result.get('status'):
+                                                    emotion_text += f" [{status_result['status']}]"
+                                            
+                                        except Exception as e:
+                                            print(f"Error analizando emociones: {str(e)}")
+                                    
+                                    # Dibujar etiqueta completa
+                                    full_label = f"{label}{emotion_text}"
+                                    label_size = cv2.getTextSize(full_label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
                                     
                                     # Dibujar fondo para la etiqueta
                                     cv2.rectangle(frame, 
@@ -395,14 +489,13 @@ class SchoolYOLOVideoPipeline:
                                                 color, -1)
                                     
                                     # Dibujar texto de la etiqueta
-                                    cv2.putText(frame, label, 
+                                    cv2.putText(frame, full_label, 
                                             (x1, y1 - 5), 
                                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, 
                                             (255, 255, 255), 2)
                                     
                 except Exception as e:
                     print(f"Error aplicando YOLO al frame {frames_written}: {str(e)}")
-                    # Continúa con el frame original si hay error
             
             # Escribir frame (con o sin detecciones)
             if frame is not None and frame.size > 0:
@@ -418,7 +511,7 @@ class SchoolYOLOVideoPipeline:
         writer.release()
         cap.release()
         
-        # 2. Usar FFmpeg para combinar el video temporal con el audio original
+        # Combinar video temporal con audio original usando FFmpeg
         if os.path.exists(temp_video_path) and os.path.getsize(temp_video_path) > 1000:
             try:
                 duration = end_time - start_time
@@ -456,13 +549,9 @@ class SchoolYOLOVideoPipeline:
 
     def _extract_clip(self, start_time: float, end_time: float, output_path: str) -> bool:
         """Extrae un clip del video priorizando ffmpeg"""
-        # Si queremos detecciones en el video Y tenemos modelo YOLO
-        if self.model is not None and self.detection_analysis:
-            # Usar OpenCV con YOLO aplicado frame por frame
-            print(f"  Extrayendo con detecciones YOLO en tiempo real...")
+        if self.model is not None and self.detection_analysis and (self.yolo_in_video or self.emotion_analyzer):
             return self._extract_clip_opencv_with_yolo(start_time, end_time, output_path)
         
-        # Comportamiento original: priorizar ffmpeg para clips sin detecciones
         if self.has_ffmpeg:
             if self._extract_clip_with_ffmpeg(start_time, end_time, output_path):
                 return True
@@ -475,7 +564,6 @@ class SchoolYOLOVideoPipeline:
             fig, ax = plt.subplots(1, figsize=(12, 8))
             ax.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             
-            # Colores para diferentes clases
             colors = {
                 'student_sitting': 'blue',
                 'student_standing': 'cyan',
@@ -483,11 +571,12 @@ class SchoolYOLOVideoPipeline:
                 'teacher_standing': 'orange'
             }
             
-            # Dibujar bounding boxes
             for det in detections:
                 bbox = det['bbox']
                 class_name = det['class']
                 confidence = det['confidence']
+                emotion = det.get('emotion')
+                status = det.get('status')
                 
                 x1, y1, x2, y2 = bbox
                 width = x2 - x1
@@ -495,13 +584,16 @@ class SchoolYOLOVideoPipeline:
                 
                 color = colors.get(class_name, 'green')
                 
-                # Dibujar rectángulo
                 rect = Rectangle((x1, y1), width, height, 
                                linewidth=2, edgecolor=color, facecolor='none')
                 ax.add_patch(rect)
                 
-                # Añadir etiqueta
                 label = f"{class_name}: {confidence:.2f}"
+                if emotion:
+                    label += f"\n{emotion}"
+                if status:
+                    label += f"\n[{status}]"
+                
                 ax.text(x1, y1-10, label, fontsize=10, 
                        bbox=dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.7))
             
@@ -518,7 +610,7 @@ class SchoolYOLOVideoPipeline:
             return False
 
     def _analyze_segment(self, start_time: float) -> Tuple[float, float, Dict]:
-        """Analiza un segmento del video incluyendo detecciones YOLO"""
+        """Analiza un segmento del video incluyendo detecciones YOLO y emociones"""
         cap = cv2.VideoCapture(self.video_path)
         if not cap.isOpened():
             return 0.0, 0.0, {}
@@ -540,24 +632,20 @@ class SchoolYOLOVideoPipeline:
             if self.scale != 1.0:
                 frame = cv2.resize(frame, (self.width, self.height))
             
-            # Analizar calidad
             if self.analyze_quality:
                 q_score = self._analyze_frame_quality(frame)
                 quality_scores.append(q_score)
             
-            # Analizar movimiento
             if self.detect_motion and prev_frame is not None:
                 m_score = self._detect_motion(prev_frame, frame)
                 motion_scores.append(m_score)
             
-            # Analizar detecciones YOLO
             if self.detection_analysis and self.model is not None:
                 det_result = self._analyze_detections(frame)
                 detection_results.append(det_result)
             
             prev_frame = frame
             
-            # Saltar algunos frames para eficiencia
             for _ in range(int(self.original_fps / 2)):
                 ret, _ = cap.read()
                 if not ret:
@@ -568,7 +656,6 @@ class SchoolYOLOVideoPipeline:
         avg_quality = np.mean(quality_scores) if quality_scores else 0.0
         avg_motion = np.mean(motion_scores) if motion_scores else 0.0
         
-        # Agregar estadísticas de detección
         if detection_results:
             avg_detections = {
                 'total_detections': np.mean([d['total_detections'] for d in detection_results]),
@@ -577,7 +664,8 @@ class SchoolYOLOVideoPipeline:
                 'teachers_sitting': np.mean([d['teachers_sitting'] for d in detection_results]),
                 'teachers_standing': np.mean([d['teachers_standing'] for d in detection_results]),
                 'detection_score': np.mean([d['detection_score'] for d in detection_results]),
-                'best_frame_detections': max(detection_results, key=lambda x: x['total_detections'])['detections']
+                'best_frame_detections': max(detection_results, key=lambda x: x['total_detections'])['detections'],
+                'emotion_stats': self._combine_emotion_stats([d.get('emotion_stats', {}) for d in detection_results])
             }
         else:
             avg_detections = {
@@ -587,10 +675,19 @@ class SchoolYOLOVideoPipeline:
                 'teachers_sitting': 0,
                 'teachers_standing': 0,
                 'detection_score': 0.0,
-                'best_frame_detections': []
+                'best_frame_detections': [],
+                'emotion_stats': {}
             }
         
         return avg_quality, avg_motion, avg_detections
+
+    def _combine_emotion_stats(self, emotion_stats_list):
+        """Combina estadísticas de emociones de múltiples frames"""
+        combined = {}
+        for stats in emotion_stats_list:
+            for emotion, count in stats.items():
+                combined[emotion] = combined.get(emotion, 0) + count
+        return combined
 
     def extract_clips(self) -> List[Dict]:
         """Extrae clips según los intervalos y criterios configurados"""
@@ -607,6 +704,9 @@ class SchoolYOLOVideoPipeline:
         if self.model:
             print(f"✓ Modelo YOLO activo - Analizando detecciones escolares")
         
+        if self.emotion_analyzer:
+            print("✓ Modelo de emociones activo - Analizando estados emocionales")
+        
         while current_time < self.duration_sec:
             end_time = min(current_time + self.clip_duration_sec, self.duration_sec)
             
@@ -615,10 +715,7 @@ class SchoolYOLOVideoPipeline:
             
             print(f"Analizando segmento: {current_time:.1f}s - {end_time:.1f}s")
             
-            # Analizar el segmento (incluyendo detecciones YOLO)
             quality_score, motion_score, detection_data = self._analyze_segment(current_time)
-            
-            # Determinar si extraer el clip
             should_extract = self._should_extract_clip(quality_score, motion_score, detection_data)
             
             print(f"  Calidad: {quality_score:.2f}")
@@ -628,18 +725,22 @@ class SchoolYOLOVideoPipeline:
             print(f"  Estudiantes parados: {detection_data.get('students_standing', 0):.1f}")
             print(f"  Maestros sentados: {detection_data.get('teachers_sitting', 0):.1f}")
             print(f"  Maestros parados: {detection_data.get('teachers_standing', 0):.1f}")
+            
+            if self.emotion_analyzer:
+                print("  Emociones detectadas:")
+                for emotion, count in detection_data.get('emotion_stats', {}).items():
+                    if count > 0:
+                        print(f"    {emotion}: {count}")
+            
             print(f"  Extraer: {should_extract}")
             
             if should_extract:
                 clip_filename = f"clip_{int(current_time):04d}s.mp4"
                 output_path = os.path.join(self.output_folder, clip_filename)
                 
-                # Extraer el clip
                 if self._extract_clip(current_time, end_time, output_path):
-                    # Crear visualización de detecciones si es relevante
                     visualization_path = None
                     if detection_data.get('best_frame_detections') and len(detection_data['best_frame_detections']) > 0:
-                        # Obtener un frame representativo para la visualización
                         cap = cv2.VideoCapture(self.video_path)
                         cap.set(cv2.CAP_PROP_POS_MSEC, (current_time + self.clip_duration_sec/2) * 1000)
                         ret, frame = cap.read()
@@ -667,7 +768,8 @@ class SchoolYOLOVideoPipeline:
                             "students_standing": round(detection_data.get('students_standing', 0), 1),
                             "teachers_sitting": round(detection_data.get('teachers_sitting', 0), 1),
                             "teachers_standing": round(detection_data.get('teachers_standing', 0), 1),
-                            "avg_confidence": round(detection_data.get('detection_score', 0), 3)
+                            "avg_confidence": round(detection_data.get('detection_score', 0), 3),
+                            "emotion_stats": detection_data.get('emotion_stats', {})
                         },
                         "visualization": viz_filename if visualization_path and os.path.exists(visualization_path) else None
                     })
@@ -683,6 +785,8 @@ class SchoolYOLOVideoPipeline:
         """Ejecuta el pipeline completo"""
         print(f"Procesando video: {self.video_path}")
         print(f"Modelo YOLO: {self.model_path}")
+        if self.emotion_analyzer:
+            print(f"Modelo de emociones: {self.emotion_model_path}")
         print(f"Configuración: intervalo={self.interval_seconds}s, duración={self.clip_duration_sec}s")
         
         clips_meta = self.extract_clips()
@@ -703,6 +807,11 @@ class SchoolYOLOVideoPipeline:
                 "classes": list(self.model.names.values()) if self.model else [],
                 "confidence_threshold": self.confidence_threshold
             },
+            "emotion_model": {
+                "path": self.emotion_model_path,
+                "available": self.emotion_analyzer is not None,
+                "classes": list(self.emotion_analyzer.emotion_labels.values()) if self.emotion_analyzer else []
+            },
             "settings": {
                 "interval_seconds": self.interval_seconds,
                 "clip_duration_sec": self.clip_duration_sec,
@@ -711,7 +820,8 @@ class SchoolYOLOVideoPipeline:
                 "detection_analysis": self.detection_analysis,
                 "smart_extraction": self.smart_extraction,
                 "scale": self.scale,
-                "reduce_fps": self.reduce_fps
+                "reduce_fps": self.reduce_fps,
+                "yolo_in_video": self.yolo_in_video
             },
             "clips_meta": clips_meta
         }
@@ -731,6 +841,15 @@ class SchoolYOLOVideoPipeline:
             total_teachers_sitting = sum(c["detections"]["teachers_sitting"] for c in clips_meta)
             total_teachers_standing = sum(c["detections"]["teachers_standing"] for c in clips_meta)
             
+            # Estadísticas de emociones
+            emotion_totals = {}
+            if self.emotion_analyzer:
+                for emotion in self.emotion_analyzer.emotion_labels.values():
+                    emotion_totals[emotion] = sum(
+                        c["detections"]["emotion_stats"].get(emotion, 0) 
+                        for c in clips_meta
+                    )
+            
             best_quality_clip = max(clips_meta, key=lambda x: x["quality_score"])
             most_detections_clip = max(clips_meta, key=lambda x: x["detections"]["total"])
             
@@ -748,6 +867,12 @@ class SchoolYOLOVideoPipeline:
                     "clips_with_students": len([c for c in clips_meta if c["detections"]["students_sitting"] + c["detections"]["students_standing"] > 0]),
                     "clips_with_teachers": len([c for c in clips_meta if c["detections"]["teachers_sitting"] + c["detections"]["teachers_standing"] > 0])
                 },
+                "emotion_summary": emotion_totals,
+                "clips_with_positive_emotions": len([
+                    c for c in clips_meta 
+                    if any(emotion in ["happy", "neutral"] 
+                          for emotion in c["detections"].get("emotion_stats", {}).keys())
+                ]) if self.emotion_analyzer else 0,
                 "clips_meta": clips_meta,
                 "audio_included": any(c.get("has_audio", False) for c in clips_meta)
             }
@@ -766,6 +891,8 @@ class SchoolYOLOVideoPipeline:
                     "clips_with_students": 0,
                     "clips_with_teachers": 0
                 },
+                "emotion_summary": {},
+                "clips_with_positive_emotions": 0,
                 "clips_meta": [],
                 "audio_included": False
             }
@@ -777,7 +904,6 @@ class SchoolYOLOVideoPipeline:
             "summary": summary,
             "metadata_path": metadata_path
         }
-
 
 def process_school_video(
     video_path: str,
@@ -792,45 +918,29 @@ def process_school_video(
     reduce_fps: bool = False,
     confidence_threshold: float = 0.5,
     detection_analysis: bool = True,
-    yolo_in_video: bool = True
+    yolo_in_video: bool = True,
+    emotion_model_path: str = None
 ) -> Dict:
     """
-    Procesa un video escolar y extrae clips con análisis YOLO.
-    
-    Args:
-        video_path: Ruta al video de entrada
-        model_path: Ruta al modelo YOLO entrenado
-        interval_seconds: Intervalo entre clips en segundos
-        output_folder: Carpeta de salida
-        clip_duration_sec: Duración de cada clip
-        analyze_quality: Analizar calidad de imagen
-        detect_motion: Detectar movimiento
-        smart_extraction: Extracción inteligente (todos los criterios)
-        scale: Factor de escala de resolución
-        reduce_fps: Reducir FPS
-        confidence_threshold: Umbral de confianza para detecciones
-        detection_analysis: Incluir análisis de detecciones YOLO
-    
-    Returns:
-        Diccionario con clips, resumen y metadatos
+    Procesa un video escolar y extrae clips con análisis YOLO y de emociones.
     """
     pipeline = SchoolYOLOVideoPipeline(
-        video_path=video_path,
-        model_path=model_path,
-        output_folder=output_folder,
-        interval_seconds=interval_seconds,
-        clip_duration_sec=clip_duration_sec,
-        analyze_quality=analyze_quality,
-        detect_motion=detect_motion,
-        smart_extraction=smart_extraction,
-        scale=scale,
-        reduce_fps=reduce_fps,
-        confidence_threshold=confidence_threshold,
-        detection_analysis=detection_analysis,
-        yolo_in_video=yolo_in_video
+        video_path = video_path,
+        model_path = model_path,
+        output_folder = output_folder,
+        interval_seconds = interval_seconds,
+        clip_duration_sec = clip_duration_sec,
+        analyze_quality = analyze_quality,
+        detect_motion = detect_motion,
+        smart_extraction = smart_extraction,
+        scale = scale,
+        reduce_fps = reduce_fps,
+        confidence_threshold = confidence_threshold,
+        detection_analysis = detection_analysis,
+        yolo_in_video = yolo_in_video,
+        emotion_model_path = emotion_model_path
     )
     return pipeline.run()
-
 
 def zip_results(output_dir: str) -> bytes:
     """
