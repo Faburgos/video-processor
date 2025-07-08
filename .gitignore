@@ -3,9 +3,10 @@ __pycache__/
 *.pyc
 
 # Ignore contenido de las carpetas
-/ temp_uploads/*
-/ temp_clips/*
-/ bin/*
+temp_uploads/*
+temp_clips/*
+bin/*
+models/*
 
 # Ignore system files
 .DS_Store
@@ -13,3 +14,5 @@ Thumbs.db
 exam.py
 .venv/
 ffmpeg.exe
+requirements_v2.txt
+requirements_copia_original.txt

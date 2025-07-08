@@ -52,7 +52,6 @@ def show_results(result):
                 
                 if success:
                     st.caption(f"⏰ {format_time(clip_meta.get('start_time', 0))}")
-                    st.caption(f"🎯 Calidad: {clip_meta.get('quality_score', 0):.1f}")
                     
                     # Calcular total de personas de forma segura
                     detections = clip_meta.get('detections', {})
@@ -82,8 +81,6 @@ def show_results(result):
             with col_info:
                 st.write(f"⏰ **Inicio:** {format_time(meta['start_time'])}")
                 st.write(f"⏱️ **Duración:** {float(meta['duration']):.1f}s")
-                st.write(f"🎯 **Nitidez:** {float(meta['quality_score']):.2f}")
-                st.write(f"🏃 **Movimiento:** {float(meta['motion_score']):.4f}")
                 
                 if "detections" in meta:
                     detections = meta["detections"]

@@ -43,12 +43,6 @@ def main():
 
             clip_duration = st.slider("Duración del clip (seg)", 5, 120, 10, key = "duration_slider")
         
-        # Configuración de análisis
-        with st.expander("🔍 Configuración de Análisis", expanded = True):
-            quality_check = st.checkbox("✅ Análisis de calidad", True, key = "quality_check")
-            motion_check = st.checkbox("🏃 Detección de movimiento", True, key = "motion_check")
-            smart_filter = st.checkbox("🧠 Filtrado inteligente", True, help = "Solo clips que cumplan TODOS los criterios", key = "smart_filter")
-        
         # Configuración YOLO
         with st.expander("🤖 Detección de Personas", expanded = True):
             yolo_analysis = st.checkbox(
@@ -79,15 +73,6 @@ def main():
                 )
             else:
                 emotion_model_path = None
-        
-        # Configuración de compresión
-        with st.expander("⚡ Optimización", expanded = False):
-            scale = st.slider(
-                "Escala de resolución", 0.1, 1.0, 1.0, 0.1,help = "1.0 = resolución original", key = "scale_slider"
-            )
-            reduce_fps = st.checkbox(
-                "📉 Reducir FPS", False, help = "Reduce tamaño del archivo", key = "reduce_fps_check"
-            )
         
         st.markdown("---")
         
@@ -174,11 +159,6 @@ def main():
                         interval_seconds = interval_sec,
                         output_folder = output_dir,
                         clip_duration_sec = clip_duration,
-                        analyze_quality = quality_check,
-                        detect_motion = motion_check,
-                        smart_extraction = smart_filter,
-                        scale = scale,
-                        reduce_fps = reduce_fps,
                         confidence_threshold = confidence_threshold,
                         detection_analysis = yolo_analysis,
                         yolo_in_video = yolo_in_video,
