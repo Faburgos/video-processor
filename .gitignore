@@ -1,6 +1,37 @@
-# Ignore bytecode files
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+*/activate
+
+# Archivos de Python compilados y caches
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# Carpetas de IDE y OS
+.vscode/
+.idea/
+.DS_Store
+*.bak
+
+# Datos sensibles o grandes (considera Git LFS o almacenarlos en Cloud Storage)
+# data/raw_data/  (si son muy grandes o sensibles)
+# models/ (los archivos de modelos entrenados suelen ser grandes)
+credentials.json
+*.env
+*.log
+
+# Archivos de configuración local
+local_settings.py
+
+# Archivos de dependencias de macOS
+.AppleDouble
 
 # Ignore contenido de las carpetas
 temp_uploads/*

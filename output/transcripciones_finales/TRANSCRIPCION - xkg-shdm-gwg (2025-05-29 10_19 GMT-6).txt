@@ -1,0 +1,250 @@
+**Maestro:** Ya debemos iniciar el tema uno, va.
+
+**Estudiante:** Sí, va.
+
+**Maestro:** Okay.
+
+**(Silencio y ruido de fondo en el aula)**
+
+**Maestro:** Pase, pase.
+
+**Estudiante:** [Ininteligible] ¿de quién es?
+
+**Maestro:** Ah, yo pensé que eso era mío.
+
+**Estudiante:** No, no.
+
+**Estudiante:** Sí, ya lo llevo.
+
+**Maestro:** No sé de quién es, nadie pregunta.
+
+**(Silencio y ruido de fondo en el aula)**
+
+**Maestro:** ¿A todos les sincronizó?
+
+**Maestro:** Vaya, muy bien.
+
+**(Silencio y ruido de fondo en el aula)**
+
+**Maestro:** Vaya, muy bien. Buenos días. Este, vamos a ver el contenido 1.2. Definición de monomio, polinomio y y grado. Tenemos el el aprendido acá, dice, "Identifica los términos en la siguiente expresión algebraica. ¿Cuántos términos tiene y quiénes son los términos?"
+
+**Estudiantes:** Dos.
+
+**Maestro:** Dos términos. ¿Cuál es el primer término?
+
+**Estudiantes:** 9st.
+
+**Maestro:** ¿9st? Okay. Y 5x. Recuerde que los términos es cada cada cada número con letra, ¿verdad? Que está separado por un signo, ya sea el signo menos o el signo más. Okay. Ahí tenemos entonces los dos términos. 9st y 5x. Entonces, hay dos términos acá. Pasamos a conceptos previos.
+
+**(Pausa)**
+
+**Maestro:** Dice, repasemos juntos lo que debemos saber antes de empezar a estudiar. Potencia de una expresión algebraica. Potencia es el exponente, ¿verdad? Ese es el, ese es la potencia. Entonces me dice, ¿cómo se representa la expresión -x²y² sin potencia? ¿Cómo se representa? ¿Qué literal sería ahí? Ya sin, sin dejarlo sin, sin exponente. ¿Cómo se representa?
+
+**(Pausa)**
+
+**Maestro:** Ajá.
+
+**Estudiante:** ¿La B?
+
+**Maestro:** No, me dices, oiga lo que dice.
+
+**Estudiante:** ¿La C?
+
+**Maestro:** ¿Y y qué pasó con el signo?
+
+**Estudiante:** ¡La D!
+
+**Maestro:** Ah, la D, ¿verdad?
+
+**Estudiantes:** (Sonidos de afirmación)
+
+**Maestro:** Okay, la D. Dice la D. Como lo que necesitamos acá es que esto lo vamos a representar sin, sin exponente. Entonces, si yo tengo x² es como que tuviera x * x. Y usted ya sabe que x * x, x². y³ usted sabe que ya sin, sin potencia sería y * y * y. Y el signo menos que no debe de faltar porque lleva un signo menos, miren, ¿sí? Entonces sería el literal D. Luego viene el siguiente, aquí sale la explicación. Luego viene el R2, que le dice, "Término y coeficiente de una expresión algebraica. Escribe todos los términos de la siguiente expresión algebraica." ¿Cuáles son los términos que que observamos ahí?
+
+**Estudiantes:** 5a y 7b.
+
+**Maestro:** 5a y 7b. Esos son los dos términos. Demos a enviar, por favor, para que los que no han dado a enviar.
+
+**(Pausa)**
+
+**Maestro:** Muy bien, pasamos al R1. Dice... pregunta, ¿cómo se expresa la expresión -2a³b² sin potencia? Sin potencia.no hay problema. Ahí está, miren. El signo más, recuerde que si si este no lleva signo, ya usted ya sabe que es positivo, ¿verdad?
+
+**Maestro:** Entonces, ahí le dice, miren. En la expresión - -3x + 5y - 7, los términos son: el primero es -3x, coma, el segundo es 5y y el último es -7.
+
+**Maestro:** Entonces nos dice el propósito de aprendizaje. El propósito de aprendizaje, identifica los elementos y características de los polinomios aplicando la definición. Ya hemos hablado anteriormente que que cada uno de los términos con una letra, que vaya acompañado con una letra, es un término. Eso se llama monomio, cada uno de ellos. Entonces pasamos al video, observamos el video, por favor.
+
+**(Inicia video)**
+
+**Narradora:** Definición de monomio, polinomio y grado. Vamos a identificar los elementos y características de los polinomios aplicando la definición.
+
+**Narradora:** María tiene cinco veces la edad de Carlos. Y la edad de Carlos es igual a la suma de la edad de Ana y Antonio. Representa la edad de María utilizando las edades de Ana y Antonio. Utiliza A para representar la edad de Ana y B para representar la edad de Antonio.
+
+**Narradora:** Como la edad de Carlos es la suma de la edad de Ana y la de Antonio, la edad de Carlos se puede representar como una expresión. La edad de Ana más la edad de Antonio. Y si representamos la edad de Ana como A y la edad de Antonio como B, la edad de Carlos se puede expresar como A + B.
+
+**Narradora:** La edad de María es cinco veces la edad de Carlos. La edad de María se puede representar como una expresión. Cinco por la edad de Carlos. Como la edad de Carlos se puede expresar como A + B, la edad de María se puede expresar como cinco por entre paréntesis A + B. Aplicando la propiedad distributiva, esto se simplifica a 5A + 5B. Por lo tanto, la edad de María, utilizando las edades de Ana y Antonio se representa por la expresión 5A + 5B.
+
+**Narradora:** La expresión algebraica formada por una o [ininteligible].[0:23] Vale, me voy a detener un poquito acá en el, en la parte donde explicaba de Ana y y Carlos.
+
+**Narradora:** [0:37] la edad de María
+
+**Maestro:** [0:39] Acá me voy a detener un poquito.
+[0:41] En este enunciado me dice que la edad de Carlos es la suma de las dos edades, de Ana y la de Antonio. Pero como a mí no me están dando la edad de Ana, cuánto, cuántos años tiene, ni mucho menos la de Antonio. Entonces lo que hacemos es llamarle a la edad de Ana, le llamamos A. Y la edad de Antonio, B. Quiere decir que la edad de Carlos es igual a A + B. Ya en forma algebraica, ya no, ya no sumando la edad de Ana más la edad de Antonio, sino que ya de forma algebraica la edad de Carlos es A + B. Por eso que luego le dice acá, que la edad de María es cinco veces la edad de Carlos. Está expresado de esa manera, mire, 5 por la edad de Carlos. Pero como la edad de Carlos ya decíamos que era, ¿cuánto?
+[1:32] A + B. Por eso es que lo representamos como, como 5 por A + B.
+[1:38] Si usted observa más adelante, más adelante del video, está expresado de esta forma: 5 por A + B. Pero usted ya sabe que A + B es la edad de Carlos, ¿sí? Porque aquí lo expresaba anteriormente. Entonces, si aquí al multiplicar 5 por A, ¿cuánto da? 5A. Signo más. 5 por B, 5B. Quiere decir que también la edad de, de, de María lo podemos expresar como 5A + 5 B, ¿okay? Muy bien.
+
+**Narradora:** [2:11] las edades de Ana y Antonio se representa por la expresión 5A + 5B.
+[2:23] La expresión algebraica formada por una o más variables con exponentes y un número llamado coeficiente y que además, solo hay operaciones de multiplicación, se conoce como término.
+[2:44] Por ejemplo, hay términos como 5x, y, 2ay, 3/5 x al cuadrado, b al cuadrado y -7.
+[3:08] En el término 7x al cuadrado, la variable es la letra x.
+[3:17] El exponente de la variable x es 2.
+[3:23] Y el coeficiente es 7.
+[3:29] Y el término -7 es un monomio en el que todos los exponentes de las variables son 0.
+[3:42] Si el exponente de una variable es 0, su valor es 1.
+[3:53] Las expresiones formadas por un término o por la suma de dos o más términos se conocen como polinomios.
+[4:07] Por ejemplo, hay polinomios como 5A + 5x, 4y - 2, 2x al cuadrado - 3ax + 5.
+[4:30] El polinomio 2x al cuadrado - 3ax + 5 se puede escribir así.
+[4:43] Y observa que está formado por los términos 2x al cuadrado, -3ax y 5.
+[5:01] Se define monomio como el polinomio formado por un solo término.
+[5:08] Se define el grado de un término como la suma de todos los exponentes de las variables.
+[5:19] Por ejemplo, el grado del término -4xy al cuadrado es 3. Porque -4 por x por y por y, la suma de los exponentes es 3.
+[5:45] Se define el grado de un polinomio como el mayor grado de los términos que conforman...
+
+**Estudiante:** [inentendible] a todos.
+
+**Maestro:** ¿Alguna duda? Vale, voy a regresar acá al video. Miren lo que me dice acá. Se define el grado de un término como la suma de todos los exponentes de la variable. Si usted observa la la variable X tiene uno de exponente. La Y, dos. Entonces, dice, dice acá la definición: se define el grado de un término, la suma de todos los exponentes. Por aquí usted observa aquí, ya de forma de, eh, sin exponente, miren, acá tiene 1, 2, 3. Entonces, ¿qué grado es?
+
+**Estudiantes:** De grado tres.
+
+**Maestro:** De grado tres, porque es la, al sumar los exponentes, como la X tiene 1 y la Y tiene 2, entonces el grado, de grado 3. Luego le dice que se define el grado de un polinomio con el mayor grado de los términos que forman dicho polinomio. ¿Quién es la, el término que tiene mayor grado en este, en este polinomio? 6x³ porque aquí me dice, mire, se define el grado de un polinomio como el mayor grado de, de los términos que conforman dicho polinomio, ¿sí?
+Vale, pasamos al, al, al primer P. Vamos al P1. Vale, ahorita.
+
+Vamos al P1. Me dice lo siguiente: Observa el siguiente término y selecciona la opción correcta.
+7x². Veamos el literal A, qué dice, qué me dice. El coeficiente es 7. Sí, es 7 el coeficiente. El coeficiente es el número que va acompañando a una variable. En este caso, entonces quiere decir que el 7 es el coeficiente. Pero luego me dice, ¿la variable es x²? ¿Sí? Podría ser. Vamos a ver qué dice la literal B. Esta expresión es un polinomio y tiene dos términos. ¿Será que tiene dos términos acá? ¿Aquí hay dos términos?
+
+**Estudiantes:** No, ¿verdad?
+
+**Maestro:** Dije yo que cuando hay términos están separados por signo más o un signo menos y entonces, en este caso no podría ser el literal B. ¿Su grado es 1?
+
+**Estudiantes:** No.
+
+**Maestro:** El, ¿es un número y no tiene ninguna variable?
+
+**Estudiantes:** No.
+
+**Maestro:** Entonces, ¿cuál es la respuesta?
+
+**Estudiantes:** Ah, okay, literal A.
+
+**Maestro:** Veamos el P2.
+
+El P2 me dice, elige el polinomio entre las siguientes opciones. Polinomio, oiga lo que dice, polinomio.
+
+**Estudiante:** ¿Cuál sería?
+
+**Estudiantes:** La C.
+
+**Maestro:** ¿Por qué la C?
+
+**Estudiante:** [inentendible] 5A y 5X.
+
+**Maestro:** Polinomio. Polinomio es que está formado por más términos, dos o más términos. Solo uno, solo este, por ejemplo, este es un monomio, ¿sí? Este es un monomio, pero como me dice la, la, me dice, elige el polinomio entre las siguientes opciones, quiere decir que en este caso es el literal C, donde está conformado por 5A + 5X. Es el polinomio.
+Entonces me dice, mire, un polinomio es una expresión algebraica formada, mire, por la suma o resta de dos o más términos. Entonces no podría ser 5X, 2AY, 3/5 de X², no puede ser ninguno de esos tres. Porque aquí me dice la la la definición: la suma de o resta de dos…correcto. Lo que dijimos anteriormente, que el grado de un polinomio es el que tiene mayor exponente. En este caso, tres. Y aquí me dice, miren. El grado de un polinomio se se define como el mayor grado de los términos que lo conforman. Análisis de los términos: 6x³ me dice que es grado tres, 5x² grado dos y -7x grado uno. El término con mayor grado es 6x³ + 5x² - 7x, por lo tanto el grado del polinomio es tres.
+
+**Maestro:** ¿Alguna duda con esto?
+
+**Estudiantes:** Okay.
+
+**Maestro:** Vamos al video dos.
+
+**Narradora:** Ahora, resuelve.
+
+**Narradora:** Uno. Identifica los términos que conforman el siguiente polinomio. El polinomio 6t + 5z - 2 se puede escribir como 6t + 5z + (-2). Por lo tanto, los términos son 6t, 5z, -2. Dos. Determina el grado del siguiente monomio. En el término -5xz, las variables son x y z. Como el exponente de x no está escrito, es 1. El exponente de z también es 1. Por lo tanto, el grado del término -5xz es la suma del exponente de x, que es 1, y el exponente de z, que también es 1, lo que da como resultado 2. Tres. Determina el grado del siguiente polinomio. Los términos en 7x + 3t son 7x y 3t. En 7x, el exponente de la variable x es 1, por lo que el grado del término 7x es 1. En 3t, el exponente de la variable t también es 1.hay que tener eh, cuidado en esa parte.
+
+**Maestro:** Vale, muy bien, va a trabajar usted solito ahorita.
+
+[Pausa, ruido de fondo de la clase]
+
+**Maestro:** Vale, trabajemos solito.
+
+[Pausa, ruido de fondo de la clase]
+
+**Estudiante 1:** [Inaudible]
+
+**Maestro:** ¿Qué?
+
+[Pausa]
+
+**Estudiante 2:** Hola.
+
+**Maestro:** Préstame, préstame que te hice.
+
+[Pausa]
+
+**Maestro:** Ah, ya, ya, ya, ya, ya. ¿Qué P es?
+
+**Estudiante 1:** En el P3.
+
+**Maestro:** Ah, okay. Voy a… Hey, miren P3.
+
+[Pausa, ruido de fondo de la clase]
+
+**Maestro:** En el P3, le sale una opción ahí como una calculadora a la hora de, de escribir algunos términos. Cuando usted le da clic acá donde dice, "Por favor, escribe el, el contenido acá", le muestra algunas opciones para que usted pueda escribir, por ejemplo, el…
+
+**Maestro:** Me dice, "Identifica los términos que conforman el el siguiente polinomio". Por ejemplo, si va a usar fracción, puede utilizar este que está aquí abajo, miren. Estos dos cuadritos que está acá, ¿ve? Para poder escribir la, la, la fracción. Si le damos ahí, este le aparece ya y usted puede escribir la fracción que le están solicitando ahí, que en ese caso sería -2/3.
+
+**Maestro:** Pero antes de, de, de… de poner esta opción, tiene que escribir el signo menos, mire, porque aquí hay un signo menos.
+
+**Estudiante 3:** Gracias.
+
+[Ruido de fondo de la clase]
+
+**Maestro:** Primero el signo menos y después la opción esta que tiene acá. Para que usted pueda escribir la fracción.[Audio inentendible y ruido de fondo de la clase]
+
+**Maestro:** Vaya, ahí solo cerrar la computadora.
+
+**Estudiante 2:** [Audio inentendible]
+
+**Maestro:** Sí, sí, de verdad, ya van a tocar.
+
+[Audio inentendible y ruido de fondo de la clase], yo yo le dije que que usara esta opción, miren. Le dije que que usara esta opción para que pudiera colocar usted el símbolo. Ahí apareció, miren. Para los que todavía no han colocado. Ahí puede, ya estando ahí ya lo puede colocar, miren.
+
+**Estudiante 2:** Profe.
+
+**Estudiante 3:** Hola.
+
+**Maestro:** Vaya, solo que termine la mayoría. Ya faltan poquitos ya.
+
+**Maestro:** Vaya, pero la pregunta, la pregunta que tengo para ustedes es, ¿sí pueden identificar los términos acá?
+
+**Varios estudiantes:** ¡Sí!
+
+**Maestro:** ¿Cuáles son los términos?
+
+**Estudiante 4:** Menos dos tercios.
+
+**Varios hablando al mismo tiempo:** Dos equis al cubo...
+
+**Maestro:** 2x³ y -1/2, ¿verdad?
+
+**Varios estudiantes:** Sí.
+
+**Maestro:** Correcto.
+
+[Murmullo de fondo]
+
+**Estudiante 5:** [ininteligible]
+
+**Estudiante 1:** No, está bien, está correcto. Lo que pasa es que es por la plataforma.
+
+**Maestro:** Ah, sí, sí, tiene razón. Tiene razón. Tiene razón. No me había fijado en el exponente.
+
+**Estudiante 1:** Hola. Decía una respuesta correcta y de la nada me tiraba mal.
+
+**Maestro:** Ahí tiene razón, de verdad. Espere, que solo falta Carlos Mauricio.
+
+[Murmullo de fondo]
+
+**Estudiante 6:** Lic.
+
+**Maestro:** Yo creo que…
+
+**Estudiante 7:** [ininteligible] estaba viendo desde que… [ininteligible]
