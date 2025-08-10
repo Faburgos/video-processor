@@ -6,9 +6,10 @@ __pycache__/
 temp_uploads/*
 temp_clips/*
 bin/*
-models/*
 data/*
 output/*
+prompts/*
+src/*
 
 # Ignore system files
 .DS_Store
