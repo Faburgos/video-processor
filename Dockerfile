@@ -6,6 +6,8 @@ ENV PORT=8080
 ENV STREAMLIT_SERVER_PORT=8080
 ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_ENABLECORS=false
+ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
 
 # Instalar dependencias del sistema con codecs completos
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,6 +36,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     build-essential \
     pkg-config \
+    # Wget para verificaciones
+    wget \
     # Limpiar cache
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -41,8 +45,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos
-COPY . /app
+# Crear directorios necesarios
+RUN mkdir -p temp_uploads models temp_clips
+
+# Copiar requirements primero para aprovechar cache de Docker
+COPY requirements.txt .
 
 # Actualizar pip y instalar dependencias
 RUN pip install --upgrade pip setuptools wheel
@@ -53,11 +60,22 @@ RUN pip install --no-cache-dir opencv-python-headless==4.8.1.78
 # Instalar el resto de dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copiar el resto de archivos
+COPY . .
+
 # Verificar instalación de FFmpeg
 RUN ffmpeg -version && ffmpeg -codecs | grep h264
+
+# Crear usuario no-root para seguridad
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/_stcore/health || exit 1
 
 # Exponer puerto
 EXPOSE 8080
 
 # Comando para ejecutar Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.headless=true", "--server.enableCORS=false"]
+CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.headless=true", "--server.enableCORS=false"]

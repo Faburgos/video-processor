@@ -1,0 +1,57 @@
+# Archivos de Git
+.git
+.gitignore
+*.md
+README.md
+
+# Archivos de Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.venv
+.pytest_cache
+
+# Archivos temporales
+temp_uploads/*
+temp_clips/*
+*.tmp
+*.swp
+*.swo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
+.idea
+*.sublime-*
+
+# Archivos de test
+test_*
+tests/
+
+# Documentación
+docs/
+
+# Node modules (si los hay)
+node_modules/
+
+# Archivos de configuración local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
